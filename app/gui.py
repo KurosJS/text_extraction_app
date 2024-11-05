@@ -4,6 +4,8 @@ from PIL import Image, ImageTk
 from app.text_extraction import extract_text_from_image
 from docx import Document
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 class TextExtractionApp(tk.Tk):
     def __init__(self):
@@ -102,6 +104,9 @@ class TextExtractionApp(tk.Tk):
             doc.save(file_path)
     
     def save_text_as_pdf(self):
+        # Register a font that supports Cyrillic characters
+        pdfmetrics.registerFont(TTFont('TimesNewRoman', 'times.ttf'))
+        
         # Open file dialog to save the text as a PDF file
         file_path = filedialog.asksaveasfilename(defaultextension=".pdf",
                                                  filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")])
@@ -109,11 +114,10 @@ class TextExtractionApp(tk.Tk):
             # Get the text from the text box
             text_content = self.text_box.get(1.0, tk.END)
             
-            # Create a PDF document and add the text
+            # Create a PDF document and add the text using the registered font
             c = canvas.Canvas(file_path)
-            c.drawString(100, 750, "Extracted Text:")
+            c.setFont("TimesNewRoman", 10)  # Use the font that supports Cyrillic
             text_object = c.beginText(100, 730)
-            text_object.setFont("Helvetica", 10)
             text_object.textLines(text_content)
             c.drawText(text_object)
             c.save()
